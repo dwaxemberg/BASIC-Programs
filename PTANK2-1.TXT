@@ -1,0 +1,2565 @@
+REM Diego Waxemberg & Doug Vandini
+REM Period 3
+REM Artiliry Strike
+REM Recreation of "Pocket Tanks"
+REM Ver. 2.1
+REM Created April 1, 2008
+REM Updated May 30, 2008
+
+
+DECLARE SUB choose ()
+DECLARE SUB intro2 ()
+DECLARE SUB intro ()
+DECLARE SUB cannon2 (num2!, ans$)
+DECLARE SUB credits ()
+DECLARE SUB cannon (num!, ans$)
+DECLARE SUB grnd (b)
+
+RANDOMIZE TIMER
+
+SCREEN 12
+
+DIM SHARED top
+DIM SHARED cwep(0 TO 100)
+DIM SHARED cwep2(0 TO 100)
+DIM SHARED cwep1(0 TO 100)
+DIM SHARED power
+DIM SHARED power2
+DIM SHARED tank2x
+DIM SHARED tank2y
+DIM SHARED sine2
+DIM SHARED cosine2
+DIM SHARED angle2
+DIM SHARED turn
+DIM SHARED weapon2
+DIM SHARED tankx
+DIM SHARED tanky
+DIM SHARED pi
+DIM SHARED sine
+DIM SHARED cosine
+DIM SHARED angle
+DIM SHARED ballx
+DIM SHARED bally
+DIM SHARED gravity
+DIM SHARED shot
+DIM SHARED ballspeedy
+DIM SHARED slope
+DIM SHARED weapon
+DIM SHARED point1
+DIM SHARED point2
+DIM SHARED snd$
+DIM SHARED ballspeedx
+
+CALL intro
+CLS
+INPUT "Sound ON or OFF"; snd$
+CALL choose
+
+CLS
+
+weapon = 1
+weapon2 = 1
+turn = 1
+
+
+shot = 0
+ 
+gravity = .002
+power = 5
+power2 = 5
+
+
+WINDOW SCREEN (0, 0)-(700, 500)
+LINE (0, 0)-(700, 500), BF
+b = INT(RND * 100)
+c = 450 - b
+b = c
+
+
+RANDOMIZE TIMER
+
+
+CLS
+
+
+
+CALL grnd(b)
+
+
+
+tankx = 100
+
+tank2x = 600
+FOR ctr = 1 TO 500
+pcolor = POINT(tankx, ctr)
+IF pcolor = 0 THEN tanky = ctr + 5: EXIT FOR
+NEXT ctr
+FOR ctr = 1 TO 500
+pcolor = POINT(tank2x, ctr)
+IF pcolor = 0 THEN tank2y = ctr + 5: EXIT FOR
+NEXT ctr
+
+
+
+
+num = .5
+num2 = .5
+
+pi = 3.141592654#
+
+a$ = INPUT$(1)
+
+
+DO
+
+        IF tanky > 495 THEN tanky = 494
+        IF tank2y > 495 THEN tank2y = 494
+
+       
+        LINE (0, 500)-(700, 500), 2
+        ans$ = INKEY$
+
+        pcolor% = POINT(tankx, tanky + 9)
+
+
+        IF pcolor% <> 2 AND pcolor% <> 6 AND pcolor% <> 5 AND pcolor% <> 7 AND pcolor% <> 8 AND tanky < 495 THEN tanky = tanky + 1
+
+
+        IF pcolor% = 2 OR pcolor% = 6 OR pcolor% = 5 OR pcolor% = 7 OR pcolor% = 8 THEN
+                CIRCLE (tankx, tanky), 7, 4, , , 1 / 2
+                LINE (tankx - 8, tanky + 4)-(tankx + 8, tanky + 5), 1, BF
+                CIRCLE (tankx, tanky), 15, 8, -num * pi, -num * pi, 1
+
+               
+                CALL cannon(num, ans$)
+        END IF
+
+        pcolor% = POINT(tank2x, tank2y + 9)
+
+
+        IF pcolor% <> 2 AND pcolor% <> 6 AND pcolor% <> 5 AND pcolor% <> 7 AND pcolor% <> 8 AND tank2y < 495 THEN tank2y = tank2y + 1
+                                                 
+
+        IF pcolor% = 2 OR pcolor% = 6 OR pcolor% = 5 OR pcolor% = 7 OR pcolor% = 8 THEN
+                CIRCLE (tank2x, tank2y), 7, 4, , , 1 / 2
+                LINE (tank2x - 8, tank2y + 4)-(tank2x + 8, tank2y + 5), 1, BF
+                CIRCLE (tank2x, tank2y), 15, 8, -num2 * pi, -num2 * pi, 1
+
+               
+                CALL cannon2(num2, ans$)
+                r = 0
+                FOR ctr = 1 TO 10
+                IF cwep2(ctr) = 0 THEN r = r + 1
+                IF r = 10 THEN GOTO outt
+
+
+                NEXT ctr
+
+        END IF
+
+LOOP
+
+outt:
+CLS
+PRINT "Player 1 points:"; point1, "Player 2 points:"; point2
+IF point1 > point2 THEN PRINT "Player 1 wins!!!"
+IF point2 > point1 THEN PRINT "Player 2 wins!!!"
+IF point1 = point2 THEN PRINT "It's a tie!!!"
+
+PRINT "Would you like to play again?(Y/N)"
+a$ = INPUT$(1)
+IF UCASE$(a$) = "Y" THEN RUN
+CLS
+
+END
+
+SUB cannon (num, ans$)
+IF turn = 1 THEN
+LOCATE 1, 30
+PRINT "Player 1's Turn!"
+
+
+        LOCATE 1, 1
+        angle = CLNG((num * pi) * 57.2958)
+        PRINT "Angle: "; angle; "    "
+
+        cosine = CLNG(16 * COS(angle / 57.2958))
+        sine = CLNG(16 * SIN(angle / 57.2958))
+
+
+
+        IF shot = 0 THEN
+
+                SELECT CASE LCASE$(ans$)
+
+                CASE "a"
+
+                        pcolor% = POINT(tankx, tanky + 9)
+
+
+                        IF pcolor% <> 2 AND pcolor% <> 6 AND pcolor% <> 5 AND pcolor% <> 7 AND pcolor% <> 8 THEN tanky = tanky + 1
+
+
+
+                        movecheck = POINT(tankx - 8, tanky - 1)
+                        IF movecheck <> 2 AND movecheck <> 6 AND movecheck <> 5 AND movecheck <> 7 AND movecheck <> 8 AND tankx > 10 AND tankx < 690 THEN
+                                CIRCLE (tankx, tanky), 7, 0, , , 1 / 2
+                                LINE (tankx - 8, tanky + 4)-(tankx + 8, tanky + 5), 0, BF
+
+                                CIRCLE (tankx, tanky), 15, 0, -num * pi, -num * pi, 1
+
+                                tanky = tanky - 10
+                                tankx = tankx - 2
+                                EXIT SUB
+
+                                CALL cannon(num, ans$)
+                        END IF
+
+
+
+                CASE "d"
+
+                        pcolor% = POINT(tankx, tanky + 9)
+
+
+                        IF pcolor% <> 2 AND pcolor% <> 6 AND pcolor% <> 5 AND pcolor% <> 7 AND pcolor% <> 8 THEN tanky = tanky + 1
+
+
+                        movecheck = POINT(tankx + 8, tanky - 1)
+                        IF movecheck <> 2 AND movecheck <> 6 AND movecheck <> 5 AND movecheck <> 7 AND movecheck <> 8 AND tankx > 10 AND tankx < 690 THEN
+                                CIRCLE (tankx, tanky), 7, 0, , , 1 / 2
+                                LINE (tankx - 8, tanky + 4)-(tankx + 8, tanky + 5), 0, BF
+
+                                CIRCLE (tankx, tanky), 15, 0, -num * pi, -num * pi, 1
+
+                                tanky = tanky - 10
+                                tankx = tankx + 2
+                                EXIT SUB
+
+                                CALL cannon(num, ans$)
+                        END IF
+
+                CASE "i"
+                        CALL intro2
+
+
+
+                CASE "q"
+                        CALL credits
+
+
+                CASE " "
+                        IF cwep1(weapon) <> 0 THEN
+                                shot = 1
+                                ballx = tankx + cosine
+
+                                bally = tanky - sine
+                               
+                                angle = CLNG((num * pi) * 57.2958)
+                                
+                                cosine = CLNG(16 * COS(angle / 57.2958))
+                                sine = CLNG(16 * SIN(angle / 57.2958))
+                                ballspeedy = -sine * (power / 100)
+                                ballspeedx = cosine * (power / 100)
+
+
+                        END IF
+
+
+                CASE "w"
+                        power = power + .1
+                        IF power > 10 THEN power = 10
+
+                CASE "s"
+                        power = power - .1
+                        IF power < 0 THEN power = 0
+
+               
+                CASE "x"
+                        LOCATE 5, 35
+                        CIRCLE (tankx, tanky), 15, 0, -num * pi, -num * pi, 1
+
+                        INPUT "Angle"; angle
+                        IF angle < 180 AND angle > 0 THEN num = (angle / 57.2958) / pi
+
+                        LOCATE 5, 35
+                        PRINT "                  "
+               
+               
+                END SELECT
+                SELECT CASE ans$
+               
+                CASE CHR$(27)
+                       
+                        RUN
+                CASE CHR$(0) + CHR$(75)
+                        CIRCLE (tankx, tanky), 15, 0, -num * pi, -num * pi, 1
+
+                        num = num + .01
+                        IF num >= 1 THEN num = 1
+
+                CASE CHR$(0) + CHR$(77)
+                        CIRCLE (tankx, tanky), 15, 0, -num * pi, -num * pi, 1
+
+                        num = num - .01
+                        IF num <= .01 THEN num = .01
+
+
+
+                CASE CHR$(0) + CHR$(72)
+                        weapon = weapon + 1
+                        IF weapon > 10 THEN weapon = 1
+                
+
+                CASE CHR$(0) + CHR$(80)
+                        weapon = weapon - 1
+                        IF weapon <= 0 THEN weapon = 10
+                END SELECT
+
+        END IF
+
+
+        LOCATE 2, 1
+
+        PRINT "Power:"; USING "###"; power * 10
+
+        SELECT CASE cwep1(weapon)
+        CASE 0
+                weapon$ = "      Used     "
+        CASE 1
+                weapon$ = "Single Shot    "
+        CASE 2
+                weapon$ = "Dirt Ball      "
+        CASE 3
+                weapon$ = "Bouncy Dirt    "
+        CASE 4
+                weapon$ = "Nuke           "
+        CASE 5
+                weapon$ = "Bouncy Dome    "
+        CASE 6
+                weapon$ = "Wall           "
+        CASE 7
+                weapon$ = "Well Digger    "
+        CASE 8
+                weapon$ = "Super Nova     "
+        CASE 9
+                weapon$ = "Spiral of Death"
+        CASE 10
+                weapon$ = "Death Star     "
+        CASE 11
+                weapon$ = "Laser Gun      "
+        CASE 12
+                weapon$ = "Rubber Gun     "
+        CASE 13
+                weapon$ = "Time Bomb      "
+        CASE 14
+                weapon$ = "Alienation     "
+        CASE 15
+                weapon$ = "Eruption       "
+        CASE 16
+                weapon$ = "Airstrike      "
+        CASE 17
+                weapon$ = "Bouncy Box     "
+
+        END SELECT
+
+        LOCATE 3, 1
+        PRINT "Weapon: "; weapon$
+
+
+        IF shot = 1 AND cwep1(weapon) <> 0 THEN
+                PSET (ballx, bally), 0
+
+                ballspeedy = ballspeedy + gravity
+
+
+                bally = bally + ballspeedy
+                ballx = ballx + ballspeedx
+
+                IF ballx > 701 OR ballx < -1 THEN turn = 2: shot = 0
+
+
+
+
+                PSET (ballx, bally), 15
+
+
+
+                colort% = POINT(ballx, bally + 1)
+               
+                IF ABS(tank2x - ballx) < 20 AND ABS(tank2y - bally) < 20 AND cwep1(weapon) = 12 THEN colort% = 4
+                IF cwep1(weapon) = 7 OR cwep1(weapon) = 5 OR cwep1(weapon) = 16 THEN colort% = 4
+
+
+                IF colort% = 5 THEN ballspeedy = ballspeedy * -.95
+                IF POINT(ballx, bally - 1) = 5 THEN ballspeedy = ballspeedy * -.95
+
+                IF POINT(ballx - 1, bally) = 5 OR POINT(ballx + 1, bally) = 5 THEN ballspeedx = ballspeedx * -.95
+
+                IF colort% = 2 OR colort% = 4 OR colort% = 6 OR colort% = 7 OR colort% = 8 THEN
+                shot = 0
+
+                rndnum = RND * 50
+                CIRCLE (tankx, tanky), 15, 0, -num * pi, -num * pi, 1
+
+
+                CIRCLE (tankx, tanky), 7, 0, , , 1 / 2
+                LINE (tankx - 8, tanky + 4)-(tankx + 8, tanky + 5), 0, BF
+
+                CIRCLE (tankx, tanky), 15, 0, -num * pi, -num * pi, 1
+
+
+                SELECT CASE cwep1(weapon)
+
+                CASE 1 'single Shot    ''''''''''''''''''''''''''''''''''''
+
+                        CIRCLE (ballx, bally), 30, 3
+                        PAINT (ballx, bally), 0, 3
+                        CIRCLE (ballx, bally), 30, 0
+                        IF ABS(ballx - tank2x) < 25 THEN point1 = point1 + 25: ballx = 0: bally = 0
+
+
+                        turn = 2
+                        cwep1(weapon) = 0
+ans$ = ""
+
+                CASE 2     'Dirt Ball ''''''''''''''''''''''''''''''''''
+                        CIRCLE (ballx, bally), 30, 3
+                        PAINT (ballx, bally), 6, 3
+                        CIRCLE (ballx, bally), 30, 6
+                        turn = 2
+                        cwep1(weapon) = 0
+ans$ = ""
+
+
+                    '''''''''''''''''''''''''''''''''''''
+                CASE 3     'Bouncy Dirt
+                        LINE (ballx - 20, bally)-(ballx + 20, bally + 10), 5, BF
+                        turn = 2
+                        cwep1(weapon) = 0
+
+ans$ = ""
+
+                CASE 4     'Nuke
+
+                        CIRCLE (ballx, bally), 100, 3
+                        PAINT (ballx, bally), 0, 3
+                        CIRCLE (ballx, bally), 100, 0
+                        IF ABS(ballx - tank2x) < 95 THEN point1 = point1 + 75: ballx = 0: bally = 0
+
+                        turn = 2
+                        cwep1(weapon) = 0
+
+ans$ = ""
+
+
+                CASE 5      'Bouncy Dome
+                        ballxs = tankx
+                        ballys = tanky
+
+                        FOR ctr = 25 TO 50
+                        CIRCLE (ballxs, ballys), ctr, 5
+                        NEXT ctr
+
+                        FOR ctr = 1 TO 10
+                        CIRCLE (tankx + cosine * 1.6, tanky - sine - 5), ctr, 0
+                        CIRCLE (tankx + cosine * 2.4, tanky - sine - 10), ctr, 0
+                        CIRCLE (tankx + cosine * 3.2, tanky - sine - 15), ctr, 0
+                        CIRCLE (tankx + cosine * 4, tanky - sine - 20), ctr, 0
+                        CIRCLE (tankx + cosine * 4.8, tanky - sine - 25), ctr, 0
+                        NEXT ctr
+
+                        turn = 2
+                        cwep1(weapon) = 0
+ans$ = ""
+
+
+
+                CASE 6        'Wall
+
+                        LINE (ballx - 5, bally)-(ballx + 5, bally - 100), 7, BF
+                        turn = 2
+                        cwep1(weapon) = 0
+ans$ = ""
+
+
+
+                CASE 7        'Well Digger
+                        bottom = tanky - 1
+                        
+                        FOR ctr = 1 TO bottom
+                        LINE (tankx - 15, bottom)-(tankx + 15, bottom - 2), 1, BF
+                        LINE (tankx - 15, tanky + 10)-(tankx + 15, bottom), 0, BF
+                        
+                       
+                        IF bottom = 100 THEN
+                        LINE (tankx - 15, bottom)-(tankx + 15, bottom - 2), 0, BF
+                        EXIT FOR
+                        END IF
+                       
+                       
+                        bottom = bottom - 1
+                        FOR slow = 1 TO 10000
+                        NEXT slow
+                        
+                        NEXT ctr
+
+                        turn = 2
+                        cwep1(weapon) = 0
+
+ans$ = ""
+
+
+                CASE 8       'Super Nova
+                        FOR ctr2 = 1 TO 100 STEP 2
+
+                        FOR ctr = .01 TO 1.99 STEP .05
+                        CIRCLE (ballx, bally), ctr2, 1, (-ctr) * pi, (-ctr) * pi, 1
+
+                        NEXT ctr
+                        NEXT ctr2
+
+                        FOR ctr2 = 1 TO 100 STEP 2
+
+                        FOR ctr = .01 TO 1.99 STEP .05
+                        CIRCLE (ballx, bally), ctr2, 11, (-ctr) * pi, (-ctr) * pi, 1
+
+                        NEXT ctr
+                        NEXT ctr2
+
+                        FOR ctr2 = 1 TO 100 STEP 2
+
+                        FOR ctr = .01 TO 1.99 STEP .05
+                        CIRCLE (ballx, bally), ctr2, 10, (-ctr) * pi, (-ctr) * pi, 1
+
+                        NEXT ctr
+                        NEXT ctr2
+
+                        FOR ctr2 = 1 TO 100 STEP 2
+
+                        FOR ctr = .01 TO 1.99 STEP .05
+                        CIRCLE (ballx, bally), ctr2, 4, (-ctr) * pi, (-ctr) * pi, 1
+
+                        NEXT ctr
+                        NEXT ctr2
+
+
+                        FOR ctr2 = 1 TO 100 STEP 2
+
+                        FOR ctr = .01 TO 1.99 STEP .05
+                        CIRCLE (ballx, bally), ctr2, 0, (-ctr) * pi, (-ctr) * pi, 1
+
+                        NEXT ctr
+                        NEXT ctr2
+                        IF ABS(ballx - tank2x) < 25 THEN point1 = point1 + 125: ballx = 0: bally = 0
+                        IF ABS(ballx - tank2x) < 55 THEN point1 = point1 + 55: ballx = 0: bally = 0
+                        IF ABS(ballx - tank2x) < 95 THEN point1 = point1 + 25: ballx = 0: bally = 0
+
+                        turn = 2
+                        cwep1(weapon) = 0
+
+ans$ = ""
+
+
+                CASE 9          'Spiral of Death
+
+                        FOR ctr2 = 10 TO 15
+                        IF snd$ = "on" THEN SOUND 500, 1
+                        FOR ctr = 0 TO 2 STEP .01
+                        CIRCLE (ballx, bally), 50, ctr2, (-ctr) * pi, (-ctr) * pi, 1
+                        FOR slow = 1 TO 10000: NEXT slow
+                        CIRCLE (ballx, bally), 50, 0, (-ctr) * pi, (-ctr) * pi, 1
+
+                        NEXT ctr
+                        NEXT ctr2
+                        IF snd$ = "on" THEN SOUND 500, 15
+                        IF ABS(ballx - tank2x) < 50 THEN point1 = point1 + 100: ballx = 0: bally = 0
+
+                        turn = 2
+                        cwep1(weapon) = 0
+ans$ = ""
+
+
+
+                CASE 10        'Death Star
+
+
+                        CIRCLE (350, 100), 100, 8
+                        PAINT (350, 100), 8, 8
+
+                        CIRCLE (350, 100), 20, 0
+                        PAINT (350, 100), 0, 0
+
+
+                        FOR ctr = 1 TO 10
+                        LINE (350, 100)-(ballx, bally), 4
+                        FOR slow = 1 TO 200000: NEXT slow
+                        LINE (350, 100)-(ballx, bally), 0
+                        FOR slow = 1 TO 200000: NEXT slow
+                        NEXT ctr
+
+
+
+                        LINE (250, 0)-(450, 200), 0, BF
+                        IF ABS(ballx - tank2x) < 10 THEN point1 = point1 + 225: ballx = 0: bally = 0
+
+
+
+                        turn = 2
+                        cwep1(weapon) = 0
+ans$ = ""
+
+
+
+                CASE 11     ' laser gun
+
+                        LINE (ballx, bally)-(tank2x, tank2y), 10
+                        IF snd$ = "on" THEN SOUND 1000, 1
+                        FOR slow = 1 TO 1000000
+                        NEXT slow
+                        LINE (ballx, bally)-(tank2x, tank2y), 0
+
+                        point1 = point1 + 50
+                        turn = 2
+                        cwep1(weapon) = 0
+
+
+ans$ = ""
+
+
+                CASE 12     'Rubber Gun
+
+                        IF ABS(tank2x - ballx) < 20 AND ABS(tank2y - bally) < 20 THEN
+                                LINE (tank2x - 40, tank2y - 20)-(tank2x + 40, tank2y - 22), 5, BF
+                                
+                        END IF
+                        turn = 2
+                        cwep1(weapon) = 0
+
+ans$ = ""
+
+
+               
+                CASE 13     'Time Bomb
+                        FOR ctr = 500000 TO 50000 STEP -25000
+                        loops = loops + 1
+                        ctr2 = 3000
+                        LINE (ballx - 5, bally + 2)-(ballx + 5, bally - 3), 8, BF
+                        LINE (ballx - 1, bally - 1)-(ballx + 1, bally - 3), 4, BF
+
+
+                        IF snd$ = "on" THEN SOUND ctr2, 1
+                        FOR slow = 1 TO ctr: NEXT slow
+                        LINE (ballx - 5, bally + 2)-(ballx + 5, bally - 3), 8, BF
+                        LINE (ballx - 1, bally - 1)-(ballx + 1, bally - 3), 8, BF
+                        FOR slow = 1 TO ctr: NEXT slow
+                        IF loops = 2 THEN ctr2 = ctr2 + 100: loops = 0
+                        NEXT ctr
+                        CIRCLE (ballx, bally), 50, 3
+                        PAINT (ballx, bally), 0, 3
+                        CIRCLE (ballx, bally), 50, 0
+                        IF snd$ = "on" THEN SOUND 300, 3
+                        IF ABS(ballx - tank2x) < 10 AND ABS(bally - tank2y) < 10 THEN points = points + 100: ballx = 0: bally = 0
+                        IF ABS(ballx - tank2x) < 30 AND ABS(bally - tank2y) < 30 THEN points = points + 50: ballx = 0: bally = 0
+                        IF ABS(ballx - tank2x) < 50 AND ABS(bally - tank2y) < 50 THEN points = points + 10: ballx = 0: bally = 0
+                        turn = 2
+                        cwep1(weapon) = 0
+ans$ = ""
+
+
+
+                CASE 14     'Alienation
+                        FOR ctr = 1 TO tank2x
+                        CIRCLE (ctr, 130), 10, 1, , , 1 / 2
+                        PAINT (ctr, 130), 1, 1
+
+                        CIRCLE (ctr, 127), 5, 14, , , 1 / 2
+                        PAINT (ctr, 127), 14, 14
+                      
+                       
+                        FOR slow = 1 TO 20000
+                        NEXT slow
+
+                      
+                        LINE (ctr - 10, 124)-(ctr + 10, 136), 0, BF
+
+
+                        NEXT ctr
+                        CIRCLE (ctr, 130), 10, 1, , , 1 / 2
+                        PAINT (ctr, 130), 1, 1
+
+                        CIRCLE (ctr, 127), 5, 14, , , 1 / 2
+                        PAINT (ctr, 127), 14, 14
+                      
+                        FOR ctr = 136 TO tank2y
+                        PSET (tank2x, ctr), 10
+                        FOR slow = 1 TO 30000
+                        NEXT slow
+
+                        PSET (tank2x, ctr), 0
+
+                        NEXT ctr
+
+                        FOR ctr = 1 TO 100
+                        CIRCLE (tank2x, tank2y), ctr, 0
+                        FOR slow = 1 TO 100000: NEXT slow
+
+                        NEXT ctr
+                        point1 = point1 + INT(((2500 - ABS(tank2x - ballx)) / 10))
+
+
+                       
+                        LINE (tank2x - 10, 124)-(tank2x + 10, 136), 0, BF
+                        turn = 2
+                        cwep1(weapon) = 0
+
+ans$ = ""
+
+
+                CASE 15   'Eruption
+                        FOR ctr = 1 TO 50
+                        LINE (ballx, bally - 35)-(ballx - ctr, bally + 15), 6
+                        LINE (ballx, bally - 35)-(ballx + ctr, bally + 15), 6
+                       
+                        FOR slow = 1 TO 10000
+                        NEXT slow
+                        NEXT ctr
+                        FOR slow = 1 TO 1000000
+                        NEXT slow
+
+                      
+                        FOR ctr = 1 TO 25
+                        CIRCLE (ballx, bally - 35), ctr, 4
+                        FOR slow = 1 TO 100000
+                        NEXT slow
+                        CIRCLE (ballx, bally - 35), ctr, 14
+                        FOR slow = 1 TO 100000
+                        NEXT slow
+                        CIRCLE (ballx, bally - 35), ctr, 15
+                        FOR slow = 1 TO 100000
+                        NEXT slow
+                        CIRCLE (ballx, bally - 35), ctr, 0
+                        NEXT ctr
+
+                      
+                      
+                        IF ABS(tank2x - ballx) < 25 AND ABS(tank2y - bally) < 25 THEN point1 = point1 + 50
+
+                       
+ans$ = ""
+
+                        turn = 2
+                        cwep1(weapon) = 0
+                CASE 16 ' Airstrike
+                        cx = 350
+                        cy = 100
+                       
+                        DO
+                        ans3$ = INKEY$
+                       
+                       
+                        SELECT CASE ans3$
+                        CASE CHR$(0) + CHR$(75)
+                                LINE (cx - 5, cy - 5)-(cx + 5, cy + 5), 0
+                                LINE (cx - 5, cy + 5)-(cx + 5, cy - 5), 0
+
+                               
+                                IF cx > 5 AND POINT(cx - 10, cy) <> 2 THEN cx = cx - 7
+                        CASE CHR$(0) + CHR$(77)
+                                LINE (cx - 5, cy - 5)-(cx + 5, cy + 5), 0
+                                LINE (cx - 5, cy + 5)-(cx + 5, cy - 5), 0
+                      
+                               
+                                IF cx < 695 AND POINT(cx + 10, cy) <> 2 THEN cx = cx + 7
+                               
+                                CASE CHR$(0) + CHR$(72)
+                                LINE (cx - 5, cy - 5)-(cx + 5, cy + 5), 0
+                                LINE (cx - 5, cy + 5)-(cx + 5, cy - 5), 0
+                      
+                               
+                                IF cy > 5 AND POINT(cx, cy - 10) <> 2 THEN cy = cy - 7
+                        CASE CHR$(0) + CHR$(80)
+                                LINE (cx - 5, cy - 5)-(cx + 5, cy + 5), 0
+                                LINE (cx - 5, cy + 5)-(cx + 5, cy - 5), 0
+                      
+                               
+                                IF POINT(cx, cy + 10) <> 2 THEN cy = cy + 7
+                        END SELECT
+
+
+                       
+                       
+                       
+                        LINE (cx - 5, cy - 5)-(cx + 5, cy + 5), 15
+                        LINE (cx - 5, cy + 5)-(cx + 5, cy - 5), 15
+                       
+                        LOOP WHILE ans3$ <> " "
+                        px = 1
+                        py = 120
+
+                        FOR ctr = px TO cx - 20
+                      
+                        LINE (px, py)-(px + 30, py + 5), 0, BF
+
+
+                        LINE (px, py)-(px, py - 10), 0
+                        LINE (px + 5, py)-(px, py - 10), 0
+
+                        LINE (px + 15, py)-(px + 10, py + 20), 0
+                        LINE (px + 25, py)-(px + 10, py + 20), 0
+
+                        LINE (px + 30, py)-(px + 35, py + 5), 0
+                        LINE (px + 30, py + 5)-(px + 35, py + 5), 0
+
+
+                        CIRCLE (px + 11, py + 8), 1, 0
+                        CIRCLE (px + 11, py + 12), 1, 0
+                       
+                        
+                        px = px + 1
+                       
+
+                        LINE (px, py)-(px + 30, py + 5), 1, BF
+
+
+                        LINE (px, py)-(px, py - 10), 1
+                        LINE (px + 5, py)-(px, py - 10), 1
+
+                        LINE (px + 15, py)-(px + 10, py + 20), 1
+                        LINE (px + 25, py)-(px + 10, py + 20), 1
+
+                        LINE (px + 30, py)-(px + 35, py + 5), 1
+                        LINE (px + 30, py + 5)-(px + 35, py + 5), 1
+
+
+                        CIRCLE (px + 11, py + 8), 1, 1
+                        CIRCLE (px + 11, py + 12), 1, 1
+                       
+                       
+                        FOR slow = 1 TO 20000: NEXT slow
+                       
+                        
+                        NEXT ctr
+                        LINE (cx - 5, cy - 5)-(cx + 5, cy + 5), 0
+                        LINE (cx - 5, cy + 5)-(cx + 5, cy - 5), 0
+                                              
+
+                        cx = cx - 45
+
+                        FOR shots = 1 TO 5
+                       
+
+                        LINE (0, 500)-(700, 500), 2
+                       
+                        cx = cx + 15
+
+                        FOR ctr = 150 TO 500
+
+                        LINE (0, 500)-(700, 500), 2
+                       
+                        LINE (cx, ctr)-(cx + 5, ctr - 8), 7
+                        LINE (cx, ctr)-(cx - 5, ctr - 8), 7
+                        LINE (cx + 5, ctr - 8)-(cx - 5, ctr - 8), 7
+                        PAINT (cx, ctr - 7), 7, 7
+                        CIRCLE (cx, ctr), 5, 4, , , 2
+                        PAINT (cx, ctr), 4, 4
+                        LINE (cx, ctr - 8)-(cx, ctr - 3), 15
+                       
+                        FOR slow = 1 TO 5000
+                        NEXT slow
+                        LINE (cx, ctr)-(cx + 5, ctr - 8), 0
+                        LINE (cx, ctr)-(cx - 5, ctr - 8), 0
+                        LINE (cx + 5, ctr - 8)-(cx - 5, ctr - 8), 0
+                        PAINT (cx, ctr - 7), 0, 0
+                        CIRCLE (cx, ctr), 5, 0, , , 2
+                        PAINT (cx, ctr), 0, 0
+                        LINE (cx, ctr - 8)-(cx, ctr - 3), 0
+                      
+                        IF POINT(cx, ctr + 10) <> 0 THEN EXIT FOR
+                       
+                        IF ABS(cx - tank2x) < 50 AND ABS(ctr - tank2y) < 50 THEN point1 = point1 + 1
+                        LOCATE 5, 1
+                        PRINT "Points:"; point1
+
+                        NEXT ctr
+                       
+                        FOR ctr2 = 1 TO 50
+
+                        LINE (0, 500)-(700, 500), 2
+                       
+                        CIRCLE (cx, ctr), ctr2, 0
+                        FOR SLOW2 = 1 TO 10000
+                        NEXT SLOW2
+
+
+                        pcolor% = POINT(tank2x, tank2y + 9)
+                        IF tanky > 495 THEN tanky = 494
+                        IF tank2y > 495 THEN tank2y = 494
+                       
+                        CIRCLE (tank2x, tank2y), 15, 0, -num2 * pi, -num2 * pi, 1
+                        CIRCLE (tank2x, tank2y), 7, 0, , , 1 / 2
+                        LINE (tank2x - 8, tank2y + 4)-(tank2x + 8, tank2y + 5), 0, BF
+                        CIRCLE (tank2x, tank2y), 15, 0, -num2 * pi, -num2 * pi, 1
+                      
+                        LINE (0, 500)-(700, 500), 2
+
+                        CIRCLE (tank2x, tank2y), 15, 8, -num2 * pi, -num2 * pi, 1
+                        CIRCLE (tank2x, tank2y), 7, 4, , , 1 / 2
+                        LINE (tank2x - 8, tank2y + 4)-(tank2x + 8, tank2y + 5), 1, BF
+                        CIRCLE (tank2x, tank2y), 15, 8, -num2 * pi, -num2 * pi, 1
+                       
+                        LINE (0, 500)-(700, 500), 2
+                        IF tanky > 495 THEN tanky = 494
+                        IF tank2y > 495 THEN tank2y = 494
+                       
+                        NEXT ctr2
+
+
+                        pcolor% = POINT(tank2x, tank2y + 9)
+                        IF tanky > 495 THEN tanky = 494
+                        IF tank2y > 495 THEN tank2y = 494
+
+                      
+
+                        IF shots < 5 THEN
+                        CIRCLE (tank2x, tank2y), 7, 4, , , 1 / 2
+                        LINE (tank2x - 8, tank2y + 4)-(tank2x + 8, tank2y + 5), 1, BF
+                        CIRCLE (tank2x, tank2y), 15, 8, -num2 * pi, -num2 * pi, 1
+                        END IF
+                      
+
+
+                       
+                        NEXT shots
+
+                        FOR ctr = px TO 730
+                     
+                        LINE (px, py)-(px + 30, py + 5), 0, BF
+
+
+                        LINE (px, py)-(px, py - 10), 0
+                        LINE (px + 5, py)-(px, py - 10), 0
+
+                        LINE (px + 15, py)-(px + 10, py + 20), 0
+                        LINE (px + 25, py)-(px + 10, py + 20), 0
+
+                        LINE (px + 30, py)-(px + 35, py + 5), 0
+                        LINE (px + 30, py + 5)-(px + 35, py + 5), 0
+
+
+                        CIRCLE (px + 11, py + 8), 1, 0
+                        CIRCLE (px + 11, py + 12), 1, 0
+                      
+                       
+                        px = px + 1
+                      
+
+                        LINE (px, py)-(px + 30, py + 5), 1, BF
+
+
+                        LINE (px, py)-(px, py - 10), 1
+                        LINE (px + 5, py)-(px, py - 10), 1
+
+                        LINE (px + 15, py)-(px + 10, py + 20), 1
+                        LINE (px + 25, py)-(px + 10, py + 20), 1
+
+                        LINE (px + 30, py)-(px + 35, py + 5), 1
+                        LINE (px + 30, py + 5)-(px + 35, py + 5), 1
+
+
+                        CIRCLE (px + 11, py + 8), 1, 1
+                        CIRCLE (px + 11, py + 12), 1, 1
+                      
+                      
+                        FOR slow = 1 TO 20000: NEXT slow
+                      
+                       
+                        NEXT ctr
+
+
+                        LINE (px, py)-(px + 30, py + 5), 0, BF
+
+
+                        LINE (px, py)-(px, py - 10), 0
+                        LINE (px + 5, py)-(px, py - 10), 0
+
+                        LINE (px + 15, py)-(px + 10, py + 20), 0
+                        LINE (px + 25, py)-(px + 10, py + 20), 0
+
+                        LINE (px + 30, py)-(px + 35, py + 5), 0
+                        LINE (px + 30, py + 5)-(px + 35, py + 5), 0
+
+
+                        CIRCLE (px + 11, py + 8), 1, 0
+                        CIRCLE (px + 11, py + 12), 1, 0
+                        
+                        LINE (cx - 5, cy - 5)-(cx + 5, cy + 5), 0
+                        LINE (cx - 5, cy + 5)-(cx + 5, cy - 5), 0
+                       
+                        CIRCLE (tank2x, tank2y), 7, 0, , , 1 / 2
+                        LINE (tank2x - 8, tank2y + 4)-(tank2x + 8, tank2y + 5), 0, BF
+                        CIRCLE (tank2x, tank2y), 15, 0, -num2 * pi, -num2 * pi, 1
+
+                        CIRCLE (tankx, tanky), 7, 0, , , 1 / 2
+                        LINE (tankx - 8, tanky + 4)-(tankx + 8, tanky + 5), 0, BF
+                        CIRCLE (tankx, tanky), 15, 0, -num2 * pi, -num2 * pi, 1
+
+                       
+                        ans$ = ""
+
+                        turn = 2
+                        cwep1(weapon) = 0
+                CASE 17 ' Bouncy box
+                LINE (ballx - 40, bally + 10)-(ballx - 50, bally - 50), 5, BF
+                FOR slow = 1 TO 100000
+                NEXT slow
+                LINE (ballx + 40, bally + 10)-(ballx + 50, bally - 50), 5, BF
+                FOR slow = 1 TO 100000
+                NEXT slow
+                LINE (ballx - 50, bally - 50)-(ballx + 50, bally - 40), 5, BF
+
+                turn = 2
+                cwep1(weapon) = 0
+
+ans$ = ""
+
+                END SELECT
+
+
+
+
+
+
+                CIRCLE (tankx, tanky), 15, 0, -num * pi, -num * pi, 1
+                CIRCLE (tankx, tanky), 7, 0, , , 1 / 2
+                LINE (tankx - 8, tanky + 4)-(tankx + 8, tanky + 5), 0, BF
+                CIRCLE (tankx, tanky), 15, 0, -num * pi, -num * pi, 1
+                
+
+
+        END IF
+END IF
+
+
+
+IF pcolor% = 2 OR pcolor% = 6 OR pcolor% = 5 THEN
+        CIRCLE (tankx, tanky), 7, 4, , , 1 / 2
+        LINE (tankx - 8, tanky + 4)-(tankx + 8, tanky + 5), 1, BF
+        CIRCLE (tankx, tanky), 15, 8, -num * pi, -num * pi, 1
+END IF
+
+END IF
+
+LOCATE 5, 1
+PRINT "Points:"; point1
+
+
+EXIT SUB
+
+END SUB
+
+SUB cannon2 (num2, ans$)
+
+IF turn = 2 THEN
+LOCATE 1, 30
+PRINT "Player 2's Turn!"
+
+
+        LOCATE 1, 55
+        angle2 = CLNG((num2 * pi) * 57.2958)
+        PRINT "Angle: "; angle2; "    "
+
+        cosine2 = CLNG(16 * COS(angle2 / 57.2958))
+        sine2 = CLNG(16 * SIN(angle2 / 57.2958))
+
+
+
+        IF shot = 0 THEN
+
+                SELECT CASE LCASE$(ans$)
+
+                CASE "a"
+
+                        pcolor% = POINT(tank2x, tank2y + 9)
+
+
+                        IF pcolor% <> 2 AND pcolor2% <> 6 AND pcolor% <> 5 AND pcolor% <> 7 AND pcolor% <> 8 THEN tank2y = tank2y + 1
+
+
+                        movecheck = POINT(tank2x - 8, tank2y - 1)
+                        IF movecheck <> 2 AND movecheck <> 6 AND movecheck <> 5 AND movecheck <> 7 AND movecheck <> 8 AND tank2x > 10 AND tank2x < 690 THEN
+                                CIRCLE (tank2x, tank2y), 7, 0, , , 1 / 2
+                                LINE (tank2x - 8, tank2y + 4)-(tank2x + 8, tank2y + 5), 0, BF
+
+                                CIRCLE (tank2x, tank2y), 15, 0, -num2 * pi, -num2 * pi, 1
+
+                                tank2y = tank2y - 10
+                                tank2x = tank2x - 2
+                                EXIT SUB
+
+                                CALL cannon2(num2, ans$)
+                        END IF
+
+
+                CASE "i"
+                        CALL intro2
+
+
+                CASE "d"
+
+                        pcolor% = POINT(tank2x, tank2y + 9)
+
+                                                                          
+                        IF pcolor% <> 2 AND pcolor% <> 6 AND pcolor% <> 5 AND pcolor% <> 7 AND pcolor% <> 8 THEN tank2y = tank2y + 1
+
+
+                        movecheck = POINT(tank2x + 8, tank2y - 1)
+                        IF movecheck <> 2 AND movecheck <> 6 AND movecheck <> 5 AND movecheck <> 7 AND mocecheck <> 8 AND tank2x > 10 AND tank2x < 690 THEN
+                                CIRCLE (tank2x, tank2y), 7, 0, , , 1 / 2
+                                LINE (tank2x - 8, tank2y + 4)-(tank2x + 8, tank2y + 5), 0, BF
+
+                                CIRCLE (tank2x, tank2y), 15, 0, -num2 * pi, -num2 * pi, 1
+
+                                tank2y = tank2y - 10
+                                tank2x = tank2x + 2
+
+                                EXIT SUB
+
+                                CALL cannon2(num2, ans$)
+
+                        END IF
+
+
+                CASE "q"
+                        CALL credits
+
+                CASE " "
+                        IF cwep2(weapon2) <> 0 THEN
+                        
+                                shot = 1
+                                ballx = tank2x + cosine2
+
+                                bally = tank2y - sine2
+                                angle2 = CLNG((num2 * pi) * 57.2958)
+
+                               
+
+                                cosine2 = CLNG(16 * COS(angle2 / 57.2958))
+                                sine2 = CLNG(16 * SIN(angle2 / 57.2958))
+                                ballspeedy = -sine2 * (power2 / 100)
+                                ballspeedx = (cosine2 * (power2 / 100))
+
+                        END IF
+
+
+                CASE "w"
+                        power2 = power2 + .1
+                        IF power2 > 10 THEN power2 = 10
+
+                CASE "s"
+                        power2 = power2 - .1
+                        IF power2 < 0 THEN power2 = 0
+
+                CASE "x"
+                        LOCATE 5, 35
+                        CIRCLE (tank2x, tank2y), 15, 0, -num2 * pi, -num2 * pi, 1
+
+                        INPUT "Angle"; angle
+                        IF angle2 < 180 AND angle2 > 0 THEN num2 = (angle / 57.2958) / pi
+
+                        LOCATE 5, 35
+                        PRINT "                  "
+              
+
+               
+                END SELECT
+                SELECT CASE ans$
+                            
+                CASE CHR$(27)
+                RUN
+
+                CASE CHR$(0) + CHR$(75)
+                        CIRCLE (tank2x, tank2y), 15, 0, -num2 * pi, -num2 * pi, 1
+                        num2 = num2 + .01
+                        IF num2 >= 1 THEN num2 = 1
+                CASE CHR$(0) + CHR$(77)
+                        CIRCLE (tank2x, tank2y), 15, 0, -num2 * pi, -num2 * pi, 1
+                        num2 = num2 - .01
+                        IF num2 <= .01 THEN num2 = .01
+                               
+                CASE CHR$(0) + CHR$(72)
+                         weapon2 = weapon2 + 1
+                        IF weapon2 > 10 THEN weapon2 = 1
+               
+                CASE CHR$(0) + CHR$(80)
+                        weapon2 = weapon2 - 1
+                        IF weapon2 <= 0 THEN weapon2 = 10
+               
+                END SELECT
+        END IF
+
+
+        LOCATE 2, 55
+
+        PRINT "Power:"; USING "###"; power2 * 10
+       
+        SELECT CASE cwep2(weapon2)
+        CASE 0
+                weapon2$ = "     Used      "
+        CASE 1
+                weapon2$ = "Single Shot    "
+        CASE 2
+                weapon2$ = "Dirt Ball      "
+        CASE 3
+                weapon2$ = "Bouncy Dirt    "
+        CASE 4
+                weapon2$ = "Nuke           "
+        CASE 5
+                weapon2$ = "Bouncy Dome    "
+        CASE 6
+                weapon2$ = "Wall           "
+        CASE 7
+                weapon2$ = "Well Digger    "
+        CASE 8
+                weapon2$ = "Super Nova     "
+        CASE 9
+                weapon2$ = "Spiral of Death"
+        CASE 10
+                weapon2$ = "Death Star     "
+        CASE 11
+                weapon2$ = "Laser Gun      "
+        CASE 12
+                weapon2$ = "Rubber Gun     "
+        CASE 13
+                weapon2$ = "Time Bomb      "
+        CASE 14
+                weapon2$ = "Alienation     "
+        CASE 15
+                weapon2$ = "Eruption       "
+        CASE 16
+                weapon2$ = "Airstrike      "
+        CASE 17
+                weapon2$ = "Bouncy Box     "
+
+        END SELECT
+
+        LOCATE 3, 55
+        PRINT "Weapon: "; weapon2$
+
+        IF shot = 1 AND cwep2(weapon2) <> 0 THEN
+                PSET (ballx, bally), 0
+
+                ballspeedy = ballspeedy + gravity
+
+
+                bally = bally + ballspeedy
+                ballx = ballx + ballspeedx
+
+                PSET (ballx, bally), 15
+                IF ballx > 701 OR ballx < -1 THEN turn = 1: shot = 0
+
+
+
+                colort% = POINT(ballx, bally + 1)
+               
+                IF ABS(tankx - ballx) < 20 AND ABS(tanky - bally) < 20 AND cwep2(weapon2) = 12 THEN colort% = 4
+
+                IF colort% = 5 THEN ballspeedy = ballspeedy * -.95
+                IF POINT(ballx, bally - 1) = 5 THEN ballspeedy = ballspeedy * -.95
+               
+                IF POINT(ballx - 1, bally) = 5 OR POINT(ballx + 1, bally) = 5 THEN ballspeedx = ballspeedx * -.95
+
+
+                IF colort% = 2 OR colort% = 4 OR colort% = 6 OR colort% = 7 OR colort% = 8 OR cwep2(weapon2) = 7 OR cwep2(weapon2) = 5 OR cwep2(weapon2) = 16 THEN
+                shot = 0
+
+
+
+                rndnum = RND * 50
+                CIRCLE (tank2x, tank2y), 15, 0, -num2 * pi, -num2 * pi, 1
+
+
+                CIRCLE (tank2x, tank2y), 7, 0, , , 1 / 2
+                LINE (tank2x - 8, tank2y + 4)-(tank2x + 8, tank2y + 5), 0, BF
+
+                CIRCLE (tank2x, tank2y), 15, 0, -num2 * pi, -num2 * pi, 1
+
+
+                SELECT CASE cwep2(weapon2)
+
+
+                CASE 1 'single Shot    ''''''''''''''''''''''''''''''''''''
+
+                        CIRCLE (ballx, bally), rndnum, 3
+                        PAINT (ballx, bally), 0, 3
+                        CIRCLE (ballx, bally), rndnum, 0
+                        IF ABS(ballx - tankx) < 25 THEN point2 = point2 + 25: ballx = 0: bally = 0
+
+                        turn = 1
+                        cwep2(weapon2) = 0
+ans$ = ""
+
+                CASE 2     'Dirt Ball ''''''''''''''''''''''''''''''''''
+                        CIRCLE (ballx, bally), 30, 3
+                        PAINT (ballx, bally), 6, 3
+                        CIRCLE (ballx, bally), 30, 6
+                        turn = 1
+                        cwep2(weapon2) = 0
+ans$ = ""
+
+
+                                    '''''''''''''''''''''''''''''''''''''
+                CASE 3     'Bouncy Dirt
+                        LINE (ballx - 20, bally)-(ballx + 20, bally + 10), 5, BF
+                        turn = 1
+                        cwep2(weapon2) = 0
+
+ans$ = ""
+
+
+
+                CASE 4     'Nuke
+
+                        CIRCLE (ballx, bally), 100, 3
+                        PAINT (ballx, bally), 0, 3
+                        CIRCLE (ballx, bally), 100, 0
+                        IF ABS(ballx - tankx) < 95 THEN point2 = point2 + 75: ballx = 0: bally = 0
+
+                        turn = 1
+                        cwep2(weapon2) = 0
+ans$ = ""
+
+
+
+                CASE 5      'Bouncy Dome
+                        ballxs = tank2x
+                        ballys = tank2y
+                                     
+                        FOR ctr = 25 TO 50
+                        CIRCLE (ballxs, ballys), ctr, 5
+                        NEXT ctr
+                       
+                        FOR ctr = 1 TO 10
+                        CIRCLE (tank2x + cosine2 * 1.6, tank2y - sine2 - 5), ctr, 0
+                        CIRCLE (tank2x + cosine2 * 2.4, tank2y - sine2 - 10), ctr, 0
+                        CIRCLE (tank2x + cosine2 * 3.2, tank2y - sine2 - 15), ctr, 0
+                        CIRCLE (tank2x + cosine2 * 4, tank2y - sine2 - 20), ctr, 0
+                        CIRCLE (tank2x + cosine2 * 4.8, tank2y - sine2 - 25), ctr, 0
+                        NEXT ctr
+
+                        turn = 1
+                        cwep2(weapon2) = 0
+ans$ = ""
+
+                CASE 6        'Wall
+
+                        LINE (ballx - 5, bally)-(ballx + 5, bally - 100), 7, BF
+                        turn = 1
+                        cwep2(weapon2) = 0
+
+ans$ = ""
+
+
+                CASE 7        'Well Digger
+                       
+                        bottom = tanky - 1
+                        
+                        FOR ctr = 1 TO bottom
+                        LINE (tank2x - 15, bottom)-(tank2x + 15, bottom - 2), 1, BF
+                        LINE (tank2x - 15, tank2y + 10)-(tank2x + 15, bottom), 0, BF
+                       
+                        IF bottom = 100 THEN
+                        LINE (tank2x - 15, bottom)-(tank2x + 15, bottom - 2), 0, BF
+                        EXIT FOR
+                        END IF
+
+                        bottom = bottom - 1
+                        FOR slow = 1 TO 10000
+                        NEXT slow
+                        
+                        NEXT ctr
+
+                        turn = 1
+                        cwep2(weapon2) = 0
+ans$ = ""
+
+
+
+                CASE 8       'Super Nova
+                        FOR ctr2 = 1 TO 100 STEP 2
+
+                        FOR ctr = .01 TO 1.99 STEP .05
+                        CIRCLE (ballx, bally), ctr2, 1, (-ctr) * pi, (-ctr) * pi, 1
+
+                        NEXT ctr
+                        NEXT ctr2
+
+                        FOR ctr2 = 1 TO 100 STEP 2
+
+                        FOR ctr = .01 TO 1.99 STEP .05
+                        CIRCLE (ballx, bally), ctr2, 11, (-ctr) * pi, (-ctr) * pi, 1
+
+                        NEXT ctr
+                        NEXT ctr2
+
+                        FOR ctr2 = 1 TO 100 STEP 2
+
+                        FOR ctr = .01 TO 1.99 STEP .05
+                        CIRCLE (ballx, bally), ctr2, 10, (-ctr) * pi, (-ctr) * pi, 1
+
+                        NEXT ctr
+                        NEXT ctr2
+
+                        FOR ctr2 = 1 TO 100 STEP 2
+
+                        FOR ctr = .01 TO 1.99 STEP .05
+                        CIRCLE (ballx, bally), ctr2, 4, (-ctr) * pi, (-ctr) * pi, 1
+
+                        NEXT ctr
+                        NEXT ctr2
+
+
+                        FOR ctr2 = 1 TO 100 STEP 2
+
+                        FOR ctr = .01 TO 1.99 STEP .05
+                        CIRCLE (ballx, bally), ctr2, 0, (-ctr) * pi, (-ctr) * pi, 1
+
+                        NEXT ctr
+                        NEXT ctr2
+                        IF ABS(ballx - tankx) < 25 THEN point2 = point2 + 125: ballx = 0: bally = 0
+                        IF ABS(ballx - tankx) < 55 THEN point2 = point2 + 55: ballx = 0: bally = 0
+                        IF ABS(ballx - tankx) < 95 THEN point2 = point2 + 25: ballx = 0: bally = 0
+
+                        turn = 1
+                        cwep2(weapon2) = 0
+
+ans$ = ""
+
+
+                CASE 9          'Spiral of Death
+
+                        FOR ctr2 = 10 TO 15
+                        IF snd$ = "on" THEN SOUND 500, 1
+                        FOR ctr = 0 TO 2 STEP .01
+                        CIRCLE (ballx, bally), 50, ctr2, (-ctr) * pi, (-ctr) * pi, 1
+                        FOR slow = 1 TO 10000: NEXT slow
+                        CIRCLE (ballx, bally), 50, 0, (-ctr) * pi, (-ctr) * pi, 1
+
+                        NEXT ctr
+                        NEXT ctr2
+                        IF snd$ = "on" THEN SOUND 500, 15
+                        IF ABS(ballx - tankx) < 50 THEN point2 = point2 + 100: ballx = 0: bally = 0
+
+                        turn = 1
+                        cwep2(weapon2) = 0
+
+ans$ = ""
+
+
+                CASE 10        'Death Star
+
+
+
+                        CIRCLE (350, 100), 100, 8
+                        PAINT (350, 100), 8, 8
+
+                        CIRCLE (350, 100), 20, 0
+                        PAINT (350, 100), 0, 0
+
+
+                        FOR ctr = 1 TO 10
+                        LINE (350, 100)-(ballx, bally), 4
+                        FOR slow = 1 TO 200000: NEXT slow
+                        LINE (350, 100)-(ballx, bally), 0
+                        FOR slow = 1 TO 200000: NEXT slow
+                        NEXT ctr
+
+
+
+                        LINE (250, 0)-(450, 200), 0, BF
+
+                        IF ABS(ballx - tankx) < 10 THEN point2 = point2 + 225: ballx = 0: bally = 0
+
+
+
+
+                        turn = 1
+                        cwep2(weapon2) = 0
+
+ans$ = ""
+
+
+                CASE 11     ' laser gun
+
+                        LINE (ballx, bally)-(tankx, tanky), 10
+                        IF snd$ = "on" THEN SOUND 1000, 1
+                        FOR slow = 1 TO 1000000
+                        NEXT slow
+                        LINE (ballx, bally)-(tankx, tanky), 0
+                        point2 = point2 + 50
+                        turn = 1
+                        cwep2(weapon2) = 0
+ans$ = ""
+
+
+               
+                CASE 12     'Rubber Gun
+
+                        IF ABS(tankx - ballx) < 20 AND ABS(tanky - bally) < 20 THEN
+                                LINE (tankx - 40, tanky - 20)-(tankx + 40, tanky - 22), 5, BF
+                               
+                        END IF
+                        turn = 1
+                        cwep2(weapon2) = 0
+
+ans$ = ""
+
+              
+                CASE 13      ' Time Bomb
+                        FOR ctr = 500000 TO 50000 STEP -25000
+                        loops = loops + 1
+                        ctr2 = 3000
+                        LINE (ballx - 5, bally + 2)-(ballx + 5, bally - 3), 8, BF
+                        LINE (ballx - 1, bally - 1)-(ballx + 1, bally - 3), 4, BF
+
+
+                        IF snd$ = "on" THEN SOUND ctr2, 1
+                        FOR slow = 1 TO ctr: NEXT slow
+                        LINE (ballx - 5, bally + 2)-(ballx + 5, bally - 3), 8, BF
+                        LINE (ballx - 1, bally - 1)-(ballx + 1, bally - 3), 8, BF
+                        FOR slow = 1 TO ctr: NEXT slow
+                        IF loops = 2 THEN ctr2 = ctr2 + 100: loops = 0
+                        NEXT ctr
+                        CIRCLE (ballx, bally), 50, 0
+                        PAINT (ballx, bally), 0, 0
+                        IF snd$ = "on" THEN SOUND 300, 3
+                        IF ABS(ballx - tankx) < 10 AND ABS(bally - tanky) < 10 THEN points2 = points2 + 100: ballx = 0: bally = 0
+                        IF ABS(ballx - tankx) < 30 AND ABS(bally - tanky) < 30 THEN points2 = points2 + 50: ballx = 0: bally = 0
+                        IF ABS(ballx - tankx) < 50 AND ABS(bally - tanky) < 50 THEN points2 = points2 + 10: ballx = 0: bally = 0
+                        turn = 1
+                        cwep2(weapon2) = 0
+ans$ = ""
+
+
+                CASE 14    'Alienation
+                        FOR ctr = 700 TO tankx STEP -1
+
+                        CIRCLE (ctr, 130), 10, 1, , , 1 / 2
+                        PAINT (ctr, 130), 1, 1
+
+                        CIRCLE (ctr, 127), 5, 14, , , 1 / 2
+                        PAINT (ctr, 127), 14, 14
+                     
+                      
+                        FOR slow = 1 TO 20000
+                        NEXT slow
+
+                     
+                        LINE (ctr - 10, 124)-(ctr + 10, 136), 0, BF
+
+
+                        NEXT ctr
+                        CIRCLE (ctr, 130), 10, 1, , , 1 / 2
+                        PAINT (ctr, 130), 1, 1
+
+                        CIRCLE (ctr, 127), 5, 14, , , 1 / 2
+                        PAINT (ctr, 127), 14, 14
+                     
+                        FOR ctr = 136 TO tanky
+                        PSET (tankx, ctr), 10
+                        FOR slow = 1 TO 30000
+                        NEXT slow
+
+                        PSET (tankx, ctr), 0
+
+                        NEXT ctr
+
+                        FOR ctr = 1 TO 100
+                        CIRCLE (tankx, tanky), ctr, 0
+                        FOR slow = 1 TO 100000: NEXT slow
+
+                        NEXT ctr
+                        point2 = point2 + INT(((2500 - ABS(tankx - ballx)) / 10))
+
+
+
+                        LINE (tankx - 10, 124)-(tankx + 10, 136), 0, BF
+                        turn = 1
+                        cwep2(weapon2) = 0
+ans$ = ""
+
+
+                CASE 15      'Eruption
+                        FOR ctr = 1 TO 50
+                        LINE (ballx, bally - 35)-(ballx - ctr, bally + 15), 6
+                        LINE (ballx, bally - 35)-(ballx + ctr, bally + 15), 6
+                       
+                        FOR slow = 1 TO 10000
+                        NEXT slow
+                        NEXT ctr
+                        FOR slow = 1 TO 1000000
+                        NEXT slow
+
+                      
+                        FOR ctr = 1 TO 25
+                        CIRCLE (ballx, bally - 35), ctr, 4
+                        FOR slow = 1 TO 100000
+                        NEXT slow
+                        CIRCLE (ballx, bally - 35), ctr, 14
+                        FOR slow = 1 TO 100000
+                        NEXT slow
+                        CIRCLE (ballx, bally - 35), ctr, 15
+                        FOR slow = 1 TO 100000
+                        NEXT slow
+                        CIRCLE (ballx, bally - 35), ctr, 0
+                        NEXT ctr
+
+                      
+                      
+                        IF ABS(tankx - ballx) < 25 AND ABS(tanky - bally) < 25 THEN point2 = point2 + 50
+
+                       
+
+                        turn = 1
+                        cwep2(weapon2) = 0
+ans$ = ""
+
+                CASE 16 ' Air Strike
+                        cx = 350
+                        cy = 100
+                      
+                        DO
+                        ans3$ = INKEY$
+                      
+                      
+                        SELECT CASE ans3$
+                        CASE CHR$(0) + CHR$(75)
+                                LINE (cx - 5, cy - 5)-(cx + 5, cy + 5), 0
+                                LINE (cx - 5, cy + 5)-(cx + 5, cy - 5), 0
+
+                              
+                                IF cx > 5 AND POINT(cx - 10, cy) <> 2 THEN cx = cx - 7
+                        CASE CHR$(0) + CHR$(77)
+                                LINE (cx - 5, cy - 5)-(cx + 5, cy + 5), 0
+                                LINE (cx - 5, cy + 5)-(cx + 5, cy - 5), 0
+                     
+                              
+                                IF cx < 695 AND POINT(cx + 10, cy) <> 2 THEN cx = cx + 7
+                              
+                                CASE CHR$(0) + CHR$(72)
+                                LINE (cx - 5, cy - 5)-(cx + 5, cy + 5), 0
+                                LINE (cx - 5, cy + 5)-(cx + 5, cy - 5), 0
+                     
+                              
+                                IF cy > 5 AND POINT(cx, cy - 10) <> 2 THEN cy = cy - 7
+                        CASE CHR$(0) + CHR$(80)
+                                LINE (cx - 5, cy - 5)-(cx + 5, cy + 5), 0
+                                LINE (cx - 5, cy + 5)-(cx + 5, cy - 5), 0
+                     
+                              
+                                IF POINT(cx, cy + 10) <> 2 THEN cy = cy + 7
+                        END SELECT
+
+
+                      
+                      
+                      
+                        LINE (cx - 5, cy - 5)-(cx + 5, cy + 5), 15
+                        LINE (cx - 5, cy + 5)-(cx + 5, cy - 5), 15
+                      
+                        LOOP WHILE ans3$ <> " "
+                        px = 1
+                        py = 120
+
+                        FOR ctr = px TO cx - 20
+                     
+                        LINE (px, py)-(px + 30, py + 5), 0, BF
+
+
+                        LINE (px, py)-(px, py - 10), 0
+                        LINE (px + 5, py)-(px, py - 10), 0
+
+                        LINE (px + 15, py)-(px + 10, py + 20), 0
+                        LINE (px + 25, py)-(px + 10, py + 20), 0
+
+                        LINE (px + 30, py)-(px + 35, py + 5), 0
+                        LINE (px + 30, py + 5)-(px + 35, py + 5), 0
+
+
+                        CIRCLE (px + 11, py + 8), 1, 0
+                        CIRCLE (px + 11, py + 12), 1, 0
+                      
+                       
+                        px = px + 1
+                      
+
+                        LINE (px, py)-(px + 30, py + 5), 1, BF
+
+
+                        LINE (px, py)-(px, py - 10), 1
+                        LINE (px + 5, py)-(px, py - 10), 1
+
+                        LINE (px + 15, py)-(px + 10, py + 20), 1
+                        LINE (px + 25, py)-(px + 10, py + 20), 1
+
+                        LINE (px + 30, py)-(px + 35, py + 5), 1
+                        LINE (px + 30, py + 5)-(px + 35, py + 5), 1
+
+
+                        CIRCLE (px + 11, py + 8), 1, 1
+                        CIRCLE (px + 11, py + 12), 1, 1
+                      
+                      
+                        FOR slow = 1 TO 20000: NEXT slow
+                      
+                       
+                        NEXT ctr
+                        LINE (cx - 5, cy - 5)-(cx + 5, cy + 5), 0
+                        LINE (cx - 5, cy + 5)-(cx + 5, cy - 5), 0
+                       
+                        cx = cx - 45
+
+                        FOR shots = 1 TO 5
+                      
+
+                        LINE (0, 500)-(700, 500), 2
+                      
+                        cx = cx + 15
+
+                        FOR ctr = 150 TO 500
+
+                        LINE (0, 500)-(700, 500), 2
+                      
+                        LINE (cx, ctr)-(cx + 5, ctr - 8), 7
+                        LINE (cx, ctr)-(cx - 5, ctr - 8), 7
+                        LINE (cx + 5, ctr - 8)-(cx - 5, ctr - 8), 7
+                        PAINT (cx, ctr - 7), 7, 7
+                        CIRCLE (cx, ctr), 5, 4, , , 2
+                        PAINT (cx, ctr), 4, 4
+                        LINE (cx, ctr - 8)-(cx, ctr - 3), 15
+                      
+                        FOR slow = 1 TO 5000
+                        NEXT slow
+                        LINE (cx, ctr)-(cx + 5, ctr - 8), 0
+                        LINE (cx, ctr)-(cx - 5, ctr - 8), 0
+                        LINE (cx + 5, ctr - 8)-(cx - 5, ctr - 8), 0
+                        PAINT (cx, ctr - 7), 0, 0
+                        CIRCLE (cx, ctr), 5, 0, , , 2
+                        PAINT (cx, ctr), 0, 0
+                        LINE (cx, ctr - 8)-(cx, ctr - 3), 0
+                     
+                        IF POINT(cx, ctr + 10) <> 0 THEN EXIT FOR
+                      
+                        IF ABS(cx - tankx) < 50 AND ABS(ctr - tanky) < 50 THEN point2 = point2 + 1
+                        LOCATE 5, 60
+                        PRINT "Points:"; point2
+
+                        NEXT ctr
+                      
+                        FOR ctr2 = 1 TO 50
+
+                        LINE (0, 500)-(700, 500), 2
+                      
+                        CIRCLE (cx, ctr), ctr2, 0
+                        FOR SLOW2 = 1 TO 10000
+                        NEXT SLOW2
+
+                        IF tanky > 495 THEN tanky = 494
+                        IF tank2y > 495 THEN tank2y = 494
+
+                        pcolor% = POINT(tankx, tanky + 9)
+                        IF tanky > 495 THEN tanky = 494
+                        IF tank2y > 495 THEN tank2y = 494
+                       
+                        CIRCLE (tankx, tanky), 15, 0, -num * pi, -num * pi, 1
+                        CIRCLE (tankx, tanky), 7, 0, , , 1 / 2
+                        LINE (tankx - 8, tanky + 4)-(tankx + 8, tanky + 5), 0, BF
+                        CIRCLE (tank2x, tanky), 15, 0, -num * pi, -num * pi, 1
+                     
+                        LINE (0, 500)-(700, 500), 2
+                        IF tanky > 495 THEN tanky = 494
+                        IF tank2y > 495 THEN tank2y = 494
+
+                        CIRCLE (tankx, tanky), 15, 8, -num * pi, -num * pi, 1
+                        CIRCLE (tankx, tanky), 7, 4, , , 1 / 2
+                        LINE (tankx - 8, tanky + 4)-(tankx + 8, tanky + 5), 1, BF
+                        CIRCLE (tankx, tanky), 15, 8, -num * pi, -num * pi, 1
+                      
+                        LINE (0, 500)-(700, 500), 2
+                        NEXT ctr2
+
+
+                        pcolor% = POINT(tankx, tanky + 9)
+                        IF tanky > 495 THEN tanky = 494
+                        IF tank2y > 495 THEN tank2y = 494
+
+                     
+
+                        IF shots < 5 THEN
+                        CIRCLE (tankx, tanky), 7, 4, , , 1 / 2
+                        LINE (tankx - 8, tanky + 4)-(tankx + 8, tanky + 5), 1, BF
+                        CIRCLE (tankx, tanky), 15, 8, -num * pi, -num * pi, 1
+                        END IF
+                     
+
+
+                      
+                        NEXT shots
+
+                        FOR ctr = px TO 730
+                    
+                        LINE (px, py)-(px + 30, py + 5), 0, BF
+
+
+                        LINE (px, py)-(px, py - 10), 0
+                        LINE (px + 5, py)-(px, py - 10), 0
+
+                        LINE (px + 15, py)-(px + 10, py + 20), 0
+                        LINE (px + 25, py)-(px + 10, py + 20), 0
+
+                        LINE (px + 30, py)-(px + 35, py + 5), 0
+                        LINE (px + 30, py + 5)-(px + 35, py + 5), 0
+
+
+                        CIRCLE (px + 11, py + 8), 1, 0
+                        CIRCLE (px + 11, py + 12), 1, 0
+                     
+                      
+                        px = px + 1
+                     
+
+                        LINE (px, py)-(px + 30, py + 5), 1, BF
+
+
+                        LINE (px, py)-(px, py - 10), 1
+                        LINE (px + 5, py)-(px, py - 10), 1
+
+                        LINE (px + 15, py)-(px + 10, py + 20), 1
+                        LINE (px + 25, py)-(px + 10, py + 20), 1
+
+                        LINE (px + 30, py)-(px + 35, py + 5), 1
+                        LINE (px + 30, py + 5)-(px + 35, py + 5), 1
+
+
+                        CIRCLE (px + 11, py + 8), 1, 1
+                        CIRCLE (px + 11, py + 12), 1, 1
+                     
+                     
+                        FOR slow = 1 TO 20000: NEXT slow
+                     
+                      
+                        NEXT ctr
+
+
+                        LINE (px, py)-(px + 30, py + 5), 0, BF
+
+
+                        LINE (px, py)-(px, py - 10), 0
+                        LINE (px + 5, py)-(px, py - 10), 0
+
+                        LINE (px + 15, py)-(px + 10, py + 20), 0
+                        LINE (px + 25, py)-(px + 10, py + 20), 0
+
+                        LINE (px + 30, py)-(px + 35, py + 5), 0
+                        LINE (px + 30, py + 5)-(px + 35, py + 5), 0
+
+
+                        CIRCLE (px + 11, py + 8), 1, 0
+                        CIRCLE (px + 11, py + 12), 1, 0
+                       
+                      
+                        CIRCLE (tank2x, tank2y), 7, 0, , , 1 / 2
+                        LINE (tank2x - 8, tank2y + 4)-(tank2x + 8, tank2y + 5), 0, BF
+                        CIRCLE (tank2x, tank2y), 15, 0, -num2 * pi, -num2 * pi, 1
+
+                        CIRCLE (tankx, tanky), 7, 0, , , 1 / 2
+                        LINE (tankx - 8, tanky + 4)-(tankx + 8, tanky + 5), 0, BF
+                        CIRCLE (tankx, tanky), 15, 0, -num2 * pi, -num2 * pi, 1
+
+
+                       
+                      
+                        ans$ = ""
+
+                        turn = 1
+                        cwep2(weapon2) = 0
+ans$ = ""
+
+                CASE 17 ' Bouncy box
+                        LINE (ballx - 40, bally + 10)-(ballx - 50, bally - 50), 5, BF
+                        FOR slow = 1 TO 100000
+                        NEXT slow
+                        LINE (ballx + 40, bally + 10)-(ballx + 50, bally - 50), 5, BF
+                        FOR slow = 1 TO 100000
+                        NEXT slow
+                        LINE (ballx - 50, bally - 50)-(ballx + 50, bally - 40), 5, BF
+
+                        turn = 1
+                        cwep2(weapon2) = 0
+ans$ = ""
+
+
+
+                END SELECT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                CIRCLE (tank2x, tank2y), 15, 0, -num2 * pi, -num2 * pi, 1
+                CIRCLE (tank2x, tank2y), 7, 0, , , 1 / 2
+                LINE (tank2x - 8, tank2y + 4)-(tank2x + 8, tank2y + 5), 0, BF
+                CIRCLE (tank2x, tank2y), 15, 0, -num2 * pi, -num2 * pi, 1
+                       
+
+
+        END IF
+END IF
+
+
+IF pcolor% = 2 OR pcolor% = 6 OR pcolor% = 5 THEN
+        CIRCLE (tank2x, tank2y), 7, 4, , , 1 / 2
+        LINE (tank2x - 8, tank2y + 4)-(tank2x + 8, tank2y + 5), 1, BF
+        CIRCLE (tank2x, tank2y), 15, 8, -num2 * pi, -num2 * pi, 1
+
+END IF
+
+
+END IF
+LOCATE 5, 55
+PRINT "Points:"; point2
+
+
+EXIT SUB
+
+END SUB
+
+SUB choose
+CLS
+RANDOMIZE TIMER
+
+FOR ctr = 1 TO 10
+choice = INT(RND * 16) + 1
+
+SELECT CASE choice
+
+        CASE 1
+                weapon$ = "Single Shot    "
+        CASE 2
+                weapon$ = "Dirt Ball      "
+        CASE 3
+                weapon$ = "Bouncy Dirt    "
+        CASE 4
+                weapon$ = "Nuke           "
+        CASE 5
+                weapon$ = "Bouncy Dome    "
+        CASE 6
+                weapon$ = "Wall           "
+        CASE 7
+                weapon$ = "Well Digger    "
+        CASE 8
+                weapon$ = "Super Nova     "
+        CASE 9
+                weapon$ = "Spiral of Death"
+        CASE 10
+                weapon$ = "Death Star     "
+        CASE 11
+                weapon$ = "Laser Gun      "
+        CASE 12
+                weapon$ = "Rubber Gun     "
+        CASE 13
+                weapon$ = "Time Bomb      "
+        CASE 14
+                weapon$ = "Alienation     "
+        CASE 15
+                weapon$ = "Eruption       "
+        CASE 16
+                weapon$ = "Airstrike      "
+        CASE 17
+                weapon$ = "Bouncy Box     "
+
+
+END SELECT
+
+LOCATE ctr + 10, 20
+
+PRINT ctr; ": "; weapon$
+
+cwep(ctr) = choice
+
+
+
+NEXT ctr
+
+FOR ctr = 11 TO 20
+
+choice = INT(RND * 17) + 1
+
+SELECT CASE choice
+        CASE 1
+                weapon$ = "Single Shot    "
+        CASE 2
+                weapon$ = "Dirt Ball      "
+        CASE 3
+                weapon$ = "Bouncy Dirt    "
+        CASE 4
+                weapon$ = "Nuke           "
+        CASE 5
+                weapon$ = "Bouncy Dome    "
+        CASE 6
+                weapon$ = "Wall           "
+        CASE 7
+                weapon$ = "Well Digger    "
+        CASE 8
+                weapon$ = "Super Nova     "
+        CASE 9
+                weapon$ = "Spiral of Death"
+        CASE 10
+                weapon$ = "Death Star     "
+        CASE 11
+                weapon$ = "Laser Gun      "
+        CASE 12
+                weapon$ = "Rubber Gun     "
+        CASE 13
+                weapon$ = "Time Bomb      "
+        CASE 14
+                weapon$ = "Alienation     "
+        CASE 15
+                weapon$ = "Eruption       "
+        CASE 16
+                weapon$ = "Airstrike      "
+        CASE 17
+                weapon$ = "Bouncy Box     "
+
+END SELECT
+
+LOCATE ctr, 50
+PRINT ctr; ": "; weapon$
+cwep(ctr) = choice
+
+
+NEXT ctr
+plr = 2
+ctr1 = 1
+ctr2 = 1
+
+
+DO
+
+
+
+
+LOCATE 1, 30
+PRINT "Player 1"
+PRINT "Input -99 for random weapons!"
+
+INPUT "Weapon #"; wep
+IF wep = -99 OR wep = 99 THEN EXIT DO
+
+IF wep <= 10 THEN
+LOCATE wep + 10, 20
+PRINT "                      "
+END IF
+IF wep > 10 THEN
+LOCATE wep, 50
+PRINT "                      "
+END IF
+
+
+
+
+
+cwep1(ctr1) = cwep(wep): ctr1 = ctr1 + 1: cwep(wep) = 0
+
+
+
+LOCATE 1, 30
+PRINT "Player 2"
+PRINT "Input -99 for random weapons!"
+INPUT "Weapon #"; wep
+IF wep = -99 OR wep = 99 THEN EXIT DO
+
+IF wep <= 10 THEN
+LOCATE wep + 10, 20
+PRINT "                      "
+END IF
+IF wep > 10 THEN
+LOCATE wep, 50
+PRINT "                      "
+END IF
+
+cwep2(ctr2) = cwep(wep): ctr2 = ctr2 + 1: cwep(wep) = 0
+
+
+
+
+
+FOR c = 1 TO 20
+IF cwep(c) <> 0 THEN EXIT FOR
+IF cwep(20) = 0 THEN EXIT DO
+
+NEXT c
+
+
+LOOP
+IF wep = -99 THEN
+FOR ctr = 1 TO 10
+cwep1(ctr) = INT(RND * 17) + 1
+NEXT ctr
+FOR ctr = 1 TO 10
+cwep2(ctr) = INT(RND * 17) + 1
+NEXT ctr
+END IF
+
+
+IF wep = 99 THEN
+INPUT wepp
+
+FOR ctr = 1 TO 10
+
+cwep1(ctr) = wepp
+
+
+NEXT ctr
+INPUT wepp
+
+FOR ctr = 1 TO 10
+
+cwep2(ctr) = wepp
+NEXT ctr
+END IF
+
+
+
+
+
+END SUB
+
+SUB credits
+CLS
+
+FOR ctr = 1 TO 100
+PRINT
+NEXT ctr
+PRINT "                                  Graphics"
+PRINT "                               Diego Waxemberg"
+PRINT
+PRINT
+PRINT "                               Physics Engine"
+PRINT "                                Doug Vandini"
+PRINT
+PRINT
+PRINT "                                  Weapons"
+PRINT "                       Diego Waxemberg & Doug Vandini"
+PRINT
+PRINT
+PRINT "                                   Help"
+PRINT "                               Mr. Schwerkolt"
+PRINT
+PRINT
+PRINT "                            2 Player Capability                "
+PRINT "                               Doug Vandini"
+PRINT
+PRINT
+PRINT "                               Introduction"
+PRINT "                              Diego Waxemberg"
+PRINT
+PRINT
+PRINT "                                  Ground"
+PRINT "                               Doug Vandini"
+PRINT
+
+FOR ctr = 1 TO 40
+PRINT
+FOR slow = 1 TO 75000
+NEXT slow
+NEXT ctr
+END
+
+END SUB
+
+SUB grnd (b)
+redo:
+CLS
+
+PRINT "1 = Hill"
+PRINT "2 = Valley"
+PRINT "3 = Cliff"
+PRINT "4 = Flats"
+PRINT "5 = Pit"
+
+
+
+a$ = INPUT$(1)
+ground = VAL(a$)
+
+IF ground <> 1 AND ground <> 2 AND ground <> 3 AND ground <> 4 AND ground <> 5 THEN PRINT "Redo": GOTO redo
+
+CLS
+
+
+
+SELECT CASE ground
+        CASE 1
+
+
+                FOR ctr = 1 TO 350
+                num = RND * 2
+
+
+                a = INT(RND * 3)
+               
+                SELECT CASE a
+
+                CASE 0
+                        IF b < 450 THEN b = b + num
+                CASE 1
+                        b = b - num
+                CASE 2
+                        b = b - num
+
+                END SELECT
+                LINE (ctr, 500)-(ctr, b), 2
+                NEXT ctr
+                FOR ctr = 351 TO 700
+
+                num = RND * 2
+
+
+                a = INT(RND * 3)
+                SELECT CASE a
+
+                CASE 0
+                        IF b < 450 THEN b = b + num
+                CASE 1
+                        b = b - num
+                CASE 2
+                        IF b < 450 THEN b = b + num
+
+                END SELECT
+                LINE (ctr, 500)-(ctr, b), 2
+                NEXT ctr
+
+
+
+
+
+
+
+
+
+        CASE 2
+
+
+                FOR ctr = 1 TO 350
+
+                num = RND * 2
+
+
+                a = INT(RND * 3)
+                SELECT CASE a
+
+                CASE 0
+                        IF b < 450 THEN b = b + num
+                CASE 1
+                        b = b - num
+                CASE 2
+                        IF b < 450 THEN b = b + num
+
+                END SELECT
+                LINE (ctr, 500)-(ctr, b), 2
+                NEXT ctr
+
+                FOR ctr = 350 TO 700
+                num = RND * 2
+
+
+                a = INT(RND * 3)
+                SELECT CASE a
+
+                CASE 0
+                        IF b < 450 THEN b = b + num
+                CASE 1
+                        b = b - num
+                CASE 2
+                        b = b - num
+
+                END SELECT
+                LINE (ctr, 500)-(ctr, b), 2
+                NEXT ctr
+
+
+
+        CASE 3
+                b = 250
+
+
+                FOR ctr = 1 TO 350
+
+                num = RND
+
+
+                a = INT(RND * 3)
+                SELECT CASE a
+
+                CASE 0
+                        IF b < 450 THEN b = b + num
+                CASE 1
+                        b = b - num
+                CASE 2
+
+                END SELECT
+                LINE (ctr, 500)-(ctr, b), 2
+                NEXT ctr
+
+
+
+
+                num = RND * 3
+
+
+                FOR ctr = 350 TO 700
+                a = INT(RND * 5)
+                SELECT CASE a
+
+                CASE 1
+                        b = b - num
+                CASE 2
+                        IF b < 450 THEN b = b + num
+                CASE 3
+                        IF b < 450 THEN b = b + num
+                CASE 4
+                        IF b < 450 THEN b = b + num
+                CASE 0
+                        IF b < 450 THEN b = b + num
+
+                END SELECT
+                LINE (ctr, 500)-(ctr, b), 2
+
+                NEXT ctr
+
+        CASE 4
+
+                b = 350
+                FOR ctr = 1 TO 700
+                a = INT(RND * 2)
+               
+                SELECT CASE a
+
+                CASE 0
+                        b = b - RND
+                CASE 1
+                        IF b < 450 THEN b = b + RND
+                END SELECT
+
+                LINE (ctr, 500)-(ctr, b), 2
+                NEXT ctr
+        CASE 5
+                b = 350
+                FOR ctr = 1 TO 100
+                a = INT(RND * 4)
+                SELECT CASE a
+                CASE 0
+                        IF b < 450 THEN b = b + RND * 4
+                CASE 1
+                        IF b < 450 THEN b = b + RND * 4
+                CASE 2
+                        IF b < 450 THEN b = b + RND * 4
+                CASE 3
+                        b = b - RND
+                END SELECT
+                LINE (ctr, 500)-(ctr, b), 2
+                NEXT ctr
+               
+               
+                FOR ctr = 101 TO 600
+                a = INT(RND * 2)
+              
+                SELECT CASE a
+
+                CASE 0
+                        b = b - RND
+                CASE 1
+                        IF b < 450 THEN b = b + RND
+                END SELECT
+
+                LINE (ctr, 500)-(ctr, b), 2
+                NEXT ctr
+               
+               
+               
+               
+                FOR ctr = 601 TO 700
+                a = INT(RND * 4)
+                SELECT CASE a
+                CASE 0
+                        IF b < 450 THEN b = b - RND * 4
+                CASE 1
+                        IF b < 450 THEN b = b - RND * 4
+                CASE 2
+                        IF b < 450 THEN b = b - RND * 4
+                CASE 3
+                        b = b + RND
+                END SELECT
+                LINE (ctr, 500)-(ctr, b), 2
+                NEXT ctr
+
+
+END SELECT
+
+
+
+
+
+
+
+END SUB
+
+SUB intro
+
+SCREEN 12
+WINDOW SCREEN (0, 0)-(700, 500)
+
+circlex = 0
+circley = 250
+circle2x = 700
+circle2y = 250
+
+
+
+DO
+
+
+CIRCLE (circlex, circley), 7, 0, , , 1 / 2
+PAINT (circlex, circley), 7, 0
+LINE (circlex, circley)-(circlex + 20, circley - 10)
+
+
+CIRCLE (circle2x, circle2y), 7, 0, , , 1 / 2
+PAINT (circle2x, circle2y), 7, 0
+LINE (circle2x, circle2y)-(circle2x - 20, circle2y - 10)
+
+
+
+
+FOR slow = 1 TO 20000
+NEXT slow
+
+circlex = circlex + 1
+circle2x = circle2x - 1
+CIRCLE (circlex, circley), 7, 4, , , 1 / 2
+PAINT (circlex, circley), 4, 4
+LINE (circlex, circley)-(circlex + 20, circley - 10), 4
+
+
+CIRCLE (circle2x, circle2y), 7, 1, , , 1 / 2
+PAINT (circle2x, circle2y), 1, 1
+LINE (circle2x, circle2y)-(circle2x - 20, circle2y - 10), 1
+
+
+
+LOOP UNTIL circlex = 340
+
+FOR slow = 1 TO 500000: NEXT slow
+
+FOR ctr = 1 TO 300
+PSET (circlex + 20, circley - 10)
+PSET (circle2x - 20, circle2y - 10)
+FOR slow = 1 TO 20000: NEXT slow
+PSET (circlex + 20, circley - 10), 0
+PSET (circle2x - 20, circle2y - 10), 0
+circlex = circlex + 1
+circley = circley - 1
+circle2x = circle2x - 1
+circle2y = circle2y - 1
+NEXT ctr
+
+LOCATE 5, 35
+PRINT "Artilary Strike"
+LOCATE 6, 37
+PRINT "Ver. 1.1"
+LOCATE 7, 20
+PRINT "Created by Diego Waxemberg & Doug Vandini"
+
+LOCATE 20, 20
+PRINT "Use A & D  to move tank left and right."
+LOCATE 21, 20
+PRINT "Use W & S to change power."
+LOCATE 22, 20
+PRINT "Use arrow keys LEFT & RIGHT to change angle."
+LOCATE 23, 20
+PRINT "Use the Arrow keys UP & DOWN to select weapon."
+LOCATE 24, 20
+PRINT "Press SPACE to fire."
+LOCATE 25, 20
+PRINT "Use X to quickly change angle."
+
+LOCATE 26, 20
+PRINT "Press I to come back to this screen at any time"
+LOCATE 27, 20
+PRINT "Press ESC to restart game."
+LOCATE 28, 20
+PRINT "Press any key to start game."
+
+DO
+a$ = INKEY$
+LOOP UNTIL a$ <> INKEY$
+END SUB
+
+SUB intro2
+LOCATE 5, 20
+PRINT "Use A & D  to move tank left and right."
+LOCATE 6, 20
+PRINT "Use W & S to change power."
+LOCATE 7, 20
+PRINT "Use arrow key LEFT & RIGHT to change angle."
+LOCATE 8, 20
+PRINT "Use the Arrow keys UP & DOWN to select weapon."
+LOCATE 9, 20
+PRINT "Press SPACE to fire."
+LOCATE 10, 20
+PRINT "Use X to quickly change angle."
+
+LOCATE 11, 20
+PRINT "Press ESC to restart game."
+LOCATE 12, 20
+PRINT "Press I to come back to this screen at any time"
+LOCATE 13, 20
+
+PRINT "Press any key to clear these instructions..."
+DO
+       
+a$ = INKEY$
+
+LOOP UNTIL a$ <> INKEY$
+
+LOCATE 5, 20
+PRINT "                                       "
+LOCATE 6, 20
+PRINT "                          "
+LOCATE 7, 20
+PRINT "                                                       "
+LOCATE 8, 20
+PRINT "                                                  "
+LOCATE 9, 20
+PRINT "                                               "
+LOCATE 10, 20
+PRINT "                                            "
+LOCATE 11, 20
+PRINT "                                               "
+LOCATE 12, 20
+PRINT "                                                      "
+LOCATE 13, 20
+PRINT "                                            "
+
+END SUB
+
